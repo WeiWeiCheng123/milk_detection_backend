@@ -2,7 +2,6 @@ import tensorflow as tf
 from flask import *
 import numpy
 import pandas as pd
-from sklearn import preprocessing
 numpy.random.seed(10)
 import os
 import fileinput

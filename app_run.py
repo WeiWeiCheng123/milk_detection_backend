@@ -10,11 +10,6 @@ import fileinput
 new_model = tf.keras.models.load_model('spectrum_milk_freshness_detection_0919v1.h5')
 app = Flask(__name__)
 
-def Standardize(Features):
-    minmax_scale = preprocessing.MinMaxScaler(feature_range=(0, 1))
-    scaledFeatures=minmax_scale.fit_transform(Features) 
-    return scaledFeatures
-
 df=pd.read_excel("test_data.xlsx")
 df1=df.values
 
@@ -27,11 +22,18 @@ def index():
 def predict():
      if request.method == 'POST':
              file = request.files['inputfile']
-             test_df = pd.read_excel(file)
-             test1=numpy.vstack([df1,test_df])
-             std_test1=Standardize(test1)
-             predictions = new_model.predict(std_test1)
-             if (predictions[10]>0.5): 
+             userdata = pd.read_excel(file,header=None)
+             userdata1=userdata.values
+             inputdata=numpy.vstack([df1,userdata1])
+             x_max=inputdata.max(axis=0)
+             x_min=inputdata.min(axis=0)
+             userdata1=numpy.reshape(userdata1,(121))
+             for i in range(121):
+                 std_data=(userdata1[i]-x_min[i])/(x_max[i]-x_min[i])
+                 userdata1[i]=std_data
+             userdata1=numpy.reshape(userdata1,(1,121))
+             predictions = new_model.predict(userdata1)
+             if (predictions>0.5): 
                  results='fresh'
              else:
                  results='unfresh'
@@ -40,3 +42,10 @@ def predict():
 
 if __name__ == '__main__':
     app.run(debug=True)
+
+
+
+##wording table
+#df is the default data
+#userdata is the uploaded file
+#inputdata is the userdata and df stacked

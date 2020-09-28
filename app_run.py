@@ -21,7 +21,7 @@ def index():
 def predict():
      if request.method == 'POST':
              file = request.files['inputfile']
-             userdata = pd.read_excel(file)
+             userdata = pd.read_csv(file)
              userdata1=userdata.values
              inputdata=numpy.vstack([df1,userdata1])
              x_max=inputdata.max(axis=0)
